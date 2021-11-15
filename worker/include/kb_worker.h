@@ -1,6 +1,6 @@
 /* kb_reader.h */
-#ifndef LINUX_KEYLOGGER_KB_READER_H
-#define LINUX_KEYLOGGER_KB_READER_H
+#ifndef LINUX_KEYLOGGER_KB_WORKER_H
+#define LINUX_KEYLOGGER_KB_WORKER_H
 
 #include <kb_mapper.h>
 
