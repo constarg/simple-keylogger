@@ -89,8 +89,21 @@ static void worker_killer() {
 
 }
 
+static inline void initialize_workers() {
+    ALLOC_MEM(workers, 1, sizeof(struct kb_worker **));
+}
+
+static inline void destroy_workers() {
+    for (int fr = 0; fr < workers_s; fr++) {
+        free(workers[fr]->kb_event_file);
+        free(workers[fr]->kb_thread);
+        free(workers[fr]);
+    }
+    free(workers);
+}
+
 static inline void append_to_workers(struct kb_worker *new_worker) {
-    ALLOC_MEM(workers, ++workers_s, sizeof(struct kb_worker **));
+    REALLOC_MEM(workers, ++workers_s, sizeof(struct kb_worker **));
     // Add the new worker.
     workers[workers_s - 1] = new_worker;
 }
@@ -108,6 +121,7 @@ static inline void remove_from_workers(int index) {
 static inline int has_kb_worker(const struct kb_worker *worker) {
 
     for (int wr = 0; wr < workers_s; wr++) {
+        if (workers == NULL) return FALSE;
         if (!strcmp(worker->kb_event_file, workers[wr]->kb_event_file)) {
             if (workers[wr]->kb_status != KB_WORKER_FAILED) return TRUE;
             else remove_from_workers(wr);
@@ -117,12 +131,39 @@ static inline int has_kb_worker(const struct kb_worker *worker) {
     return FALSE;
 }
 
-static void *discovery_thread(void *arg) {
+static void discovery() {
+    size_t discovered_kbs_s = 0;
+    char **discovered_kbs = kb_discovery(&discovered_kbs_s);
+    int new_discovery = FALSE;
+    // Make a new worker.
+    struct kb_worker *new_worker;
+    pthread_t *worker_thread;
 
+    for (int kb = 0; kb < discovered_kbs_s; kb++) {
+        ALLOC_MEM(new_worker, 1, sizeof(struct kb_worker));
+        ALLOC_MEM(worker_thread, 1, sizeof(pthread_t));
+        new_worker->kb_id = ++latest_worker_id;
+        new_worker->kb_status = KB_WORKER_UNKNOWN;
+        new_worker->kb_thread = worker_thread;
+        new_worker->kb_event_file = discovered_kbs[kb];
 
-    // TODO - Discover new keyboards and modify the list of workers.
+        if (!has_kb_worker((const struct kb_worker *) new_worker)) {
+            append_to_workers(new_worker);
+            new_discovery = TRUE;
+        } else {
+            free(new_worker->kb_event_file);
+            free(new_worker);
+            free(worker_thread);
+        }
+    }
+
+    free(discovered_kbs);
+    if (new_discovery) printf("OK\n");
     // TODO - If a new keyboard is found then make a killer signal.
-    return NULL;
+}
+
+_Noreturn static void *discovery_thread(void *arg) {
+    while ( TRUE ) discovery();
 }
 
 static void *worker_maker_thread(void *arg) {
@@ -131,6 +172,7 @@ static void *worker_maker_thread(void *arg) {
 }
 
 void map_keyboards() {
+    initialize_workers();
     // Make the two main threads.
     pthread_t discovery_t;
     pthread_t worker_maker_t;
@@ -141,5 +183,5 @@ void map_keyboards() {
     pthread_join(discovery_t, NULL);
     pthread_join(worker_maker_t, NULL);
 
-    free(workers);
+    destroy_workers();
 }
