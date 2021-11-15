@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include <kb_mapper.h>
@@ -13,14 +12,13 @@
 #define DEVICE_HANDLER_PATH     "/dev/input/"
 #define KEYBOARD_ID             "EV=120013"
 
+#define TRUE  1
+#define FALSE 0
 
-struct kb_worker **workers;
-static int latest_worker_id = 1;
+struct kb_worker **workers = NULL;
+static size_t workers_s = 0;
+static int latest_worker_id = 0;
 
-static int has_kb_worker(const char *kb_event_file) {
-    // TODO - Here find if the keyboard we are looking for had already a worker, so we don't make duplicate workers.
-    return 0;
-}
 
 static char **kb_discovery(size_t *size) {
     size_t event_files_s = 1;
@@ -91,13 +89,37 @@ static void worker_killer() {
 
 }
 
-static inline void initialize_workers() {
-    ALLOC_MEM(workers, 1, sizeof(struct kb_worker **));
+static inline void append_to_workers(struct kb_worker *new_worker) {
+    ALLOC_MEM(workers, ++workers_s, sizeof(struct kb_worker **));
+    // Add the new worker.
+    workers[workers_s - 1] = new_worker;
 }
 
-static inline void destroy_workers() { free(workers); }
+static inline void remove_from_workers(int index) {
+    if (index > workers_s) return;
+    struct kb_worker *removed_worker = workers[index];
+
+    for (int wr = index; wr < (workers_s - 1); wr++) workers[wr + 1] = workers[wr];
+
+    --workers_s;
+    free(removed_worker);
+}
+
+static inline int has_kb_worker(const struct kb_worker *worker) {
+
+    for (int wr = 0; wr < workers_s; wr++) {
+        if (!strcmp(worker->kb_event_file, workers[wr]->kb_event_file)) {
+            if (workers[wr]->kb_status != KB_WORKER_FAILED) return TRUE;
+            else remove_from_workers(wr);
+        }
+    }
+
+    return FALSE;
+}
 
 static void *discovery_thread(void *arg) {
+
+
     // TODO - Discover new keyboards and modify the list of workers.
     // TODO - If a new keyboard is found then make a killer signal.
     return NULL;
@@ -109,8 +131,6 @@ static void *worker_maker_thread(void *arg) {
 }
 
 void map_keyboards() {
-    initialize_workers();
-
     // Make the two main threads.
     pthread_t discovery_t;
     pthread_t worker_maker_t;
@@ -120,5 +140,6 @@ void map_keyboards() {
 
     pthread_join(discovery_t, NULL);
     pthread_join(worker_maker_t, NULL);
-    destroy_workers();
+
+    free(workers);
 }
