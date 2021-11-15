@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <keyboard/keyboard.h>
+#include <kb_mapper.h>
 
 int main() {
+    map_keyboards(NULL);
 
-    get_keyboards();
     return 0;
 }

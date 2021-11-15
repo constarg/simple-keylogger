@@ -3,6 +3,7 @@
 #define LINUX_KEYLOGGER_KB_MAPPER_H
 
 #include <stdint.h>
+#include <pthread.h>
 
 typedef int8_t status;
 
