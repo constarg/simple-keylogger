@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <kb_mapper.h>
+#include <kb_worker.h>
 #include <mem.h>
 
 #define DEVICE_LOCATION         "/proc/bus/input/devices"
@@ -14,6 +16,9 @@
 
 #define TRUE  1
 #define FALSE 0
+
+#define INITIAL_WORKER_MAKER_DELAY 5
+#define REDESCOVER_DELAY           3
 
 struct kb_worker **workers = NULL;
 static size_t workers_s = 0;
@@ -85,10 +90,6 @@ static char **kb_discovery(size_t *size) {
     return event_files;
 }
 
-static void worker_killer() {
-
-}
-
 static inline void initialize_workers() {
     ALLOC_MEM(workers, 1, sizeof(struct kb_worker **));
 }
@@ -100,6 +101,7 @@ static inline void destroy_workers() {
         free(workers[fr]);
     }
     free(workers);
+    latest_worker_id = 0;
 }
 
 static inline void append_to_workers(struct kb_worker *new_worker) {
@@ -158,20 +160,43 @@ static void discovery() {
     }
 
     free(discovered_kbs);
-    if (new_discovery) printf("OK\n");
-    // TODO - If a new keyboard is found then make a killer signal.
+    if (new_discovery) kill(0, SIGUSR1);
 }
 
 _Noreturn static void *discovery_thread(void *arg) {
-    while ( TRUE ) discovery();
+    while ( TRUE ) {
+        discovery();
+        sleep(REDESCOVER_DELAY);
+    }
 }
 
-static void *worker_maker_thread(void *arg) {
-    // TODO - Make threads according to the list of workers.
-    return NULL;
+_Noreturn static void *worker_maker_thread(void *arg) {
+    // Wait for 5 seconds to make the first discovery.
+    // Yes 5 seconds is too much but for this function to work it must be sure that the discovery has been made.
+    sleep(INITIAL_WORKER_MAKER_DELAY);
+    while ( TRUE ) {
+        for (int wr = 0; wr < workers_s; wr++) pthread_create(workers[wr]->kb_thread, NULL, start_worker, (void *) workers[wr]);
+        // Wait for all the threads to end.
+        for (int wr = 0; wr < workers_s; wr++) pthread_join(*workers[wr]->kb_thread, NULL);
+    }
+}
+
+static void worker_killer(int sig) {
+    pthread_t curr_thread;
+
+    // Kill all the active threads.
+    for (int th = 0; th < workers_s; th++) {
+        curr_thread = *(workers[th]->kb_thread);
+        if (pthread_cancel(curr_thread) != 0) return;
+    }
+}
+
+static inline void initialize_signal() {
+    signal(SIGUSR1, worker_killer);
 }
 
 void map_keyboards() {
+    initialize_signal();
     initialize_workers();
     // Make the two main threads.
     pthread_t discovery_t;
