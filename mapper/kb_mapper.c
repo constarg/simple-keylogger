@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #include <kb_mapper.h>
 
@@ -14,6 +15,7 @@
 #define DEVICE_LOCATION         "/proc/bus/input/devices"
 #define DEVICE_HANDLER_PATH     "/dev/input/"
 #define KEYBOARD_ID             "EV=120013"
+
 
 static void create_kb_worker(const char *kb_event_file) {
     // TODO - Here make a new thread and call the reader.

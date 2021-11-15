@@ -1,0 +1,7 @@
+#ifndef LINUX_KEYLOGGER_MEM_H
+#define LINUX_KEYLOGGER_MEM_H
+
+
+
+
+#endif
