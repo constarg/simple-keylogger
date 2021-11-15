@@ -9,6 +9,7 @@
 
 #include <kb_mapper.h>
 
+#define REMAP_INTERVAL          10
 
 #define DEVICE_LOCATION         "/proc/bus/input/devices"
 #define DEVICE_HANDLER_PATH     "/dev/input/"
