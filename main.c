@@ -2,7 +2,6 @@
 #include <kb_mapper.h>
 
 int main() {
-    map_keyboards(NULL);
-
+    map_keyboards();
     return 0;
 }
