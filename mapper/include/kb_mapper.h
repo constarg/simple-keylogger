@@ -7,6 +7,7 @@
 
 typedef int8_t status;
 
+#define KB_WORKER_UNKNOWN 2
 #define KB_WORKER_RUNNING 1
 #define KB_WORKER_FAILED  0
 
@@ -14,7 +15,7 @@ struct kb_worker {
     pthread_t *kb_thread;             // The associated thread for the keyboard.
     char      *kb_event_file;         // The event file of the keyboard.
     int        kb_id;                 // The id of the current keyboard worker.
-    status     kb_status: 1;          // The status of the keyboard worker.
+    status     kb_status: 3;          // The status of the keyboard worker.
 };
 
 extern void map_keyboards();
