@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <keyboard/keyboard.h>
 
 int main() {
-    printf("Hello, World!\n");
+
+    get_keyboards();
     return 0;
 }
