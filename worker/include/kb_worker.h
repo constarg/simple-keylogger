@@ -4,7 +4,7 @@
 
 #include <kb_mapper.h>
 
-extern void start_worker(struct kb_worker *worker);
+extern void *start_worker(void *worker);
 
 
 
