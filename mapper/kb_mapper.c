@@ -6,7 +6,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <stdbool.h>
 
 #include <kb_mapper.h>
 
