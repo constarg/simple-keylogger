@@ -17,6 +17,6 @@ struct kb_worker {
     status     kb_status: 1;          // The status of the keyboard worker.
 };
 
-extern void map_keyboards(void *arg);
+extern void map_keyboards();
 
 #endif

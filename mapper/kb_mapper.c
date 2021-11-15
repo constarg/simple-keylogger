@@ -7,19 +7,15 @@
 #include <unistd.h>
 
 #include <kb_mapper.h>
-#include "../mem/include/mem.h"
-
-#define REMAP_INTERVAL          10
+#include <mem.h>
 
 #define DEVICE_LOCATION         "/proc/bus/input/devices"
 #define DEVICE_HANDLER_PATH     "/dev/input/"
 #define KEYBOARD_ID             "EV=120013"
 
-static int latest_worker_id = 0;
 
-static void create_kb_worker(const char *kb_event_file) {
-    // TODO - Here make a new thread and call the worker.
-}
+struct kb_worker **workers;
+static int latest_worker_id = 1;
 
 static int has_kb_worker(const char *kb_event_file) {
     // TODO - Here find if the keyboard we are looking for had already a worker, so we don't make duplicate workers.
@@ -91,6 +87,38 @@ static char **kb_discovery(size_t *size) {
     return event_files;
 }
 
-void map_keyboards(void *arg) {
-    // TODO - Here find all the keyboard inside the device file and call the create_kb_worker for each of them.
+static void worker_killer() {
+
+}
+
+static inline void initialize_workers() {
+    ALLOC_MEM(workers, 1, sizeof(struct kb_worker **));
+}
+
+static inline void destroy_workers() { free(workers); }
+
+static void *discovery_thread(void *arg) {
+    // TODO - Discover new keyboards and modify the list of workers.
+    // TODO - If a new keyboard is found then make a killer signal.
+    return NULL;
+}
+
+static void *worker_maker_thread(void *arg) {
+    // TODO - Make threads according to the list of workers.
+    return NULL;
+}
+
+void map_keyboards() {
+    initialize_workers();
+
+    // Make the two main threads.
+    pthread_t discovery_t;
+    pthread_t worker_maker_t;
+    // Start the two main threads.
+    if (pthread_create(&discovery_t, NULL, discovery_thread, NULL) != 0) return;
+    if (pthread_create(&worker_maker_t, NULL, worker_maker_thread, NULL) != 0) return;
+
+    pthread_join(discovery_t, NULL);
+    pthread_join(worker_maker_t, NULL);
+    destroy_workers();
 }
