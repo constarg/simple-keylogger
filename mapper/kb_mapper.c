@@ -94,6 +94,17 @@ static inline void initialize_workers() {
     ALLOC_MEM(workers, 1, sizeof(struct kb_worker **));
 }
 
+static inline void worker_killer() {
+    pthread_t curr_thread;
+
+    // Kill all the active threads.
+    for (int th = 0; th < workers_s; th++) {
+        curr_thread = *(workers[th]->kb_thread);
+        if (pthread_cancel(curr_thread) != 0) return;
+    }
+}
+
+
 static inline void destroy_workers() {
     for (int fr = 0; fr < workers_s; fr++) {
         free(workers[fr]->kb_event_file);
@@ -131,16 +142,6 @@ static inline int has_kb_worker(const struct kb_worker *worker) {
     }
 
     return FALSE;
-}
-
-static inline void worker_killer() {
-    pthread_t curr_thread;
-
-    // Kill all the active threads.
-    for (int th = 0; th < workers_s; th++) {
-        curr_thread = *(workers[th]->kb_thread);
-        if (pthread_cancel(curr_thread) != 0) return;
-    }
 }
 
 static void discovery() {
@@ -191,8 +192,13 @@ _Noreturn static void *worker_maker_thread(void *arg) {
     }
 }
 
+static void cleanup(int sig) {
+    destroy_workers();
+    exit(0);
+}
+
 static inline void initialize_signal() {
-    // TODO - Make a few signals.
+    signal(SIGINT, cleanup);
 }
 
 void map_keyboards() {

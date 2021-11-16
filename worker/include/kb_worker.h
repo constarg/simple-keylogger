@@ -4,7 +4,7 @@
 
 #include <kb_mapper.h>
 
-extern void *start_worker(void *worker);
+_Noreturn extern void *start_worker(void *worker);
 
 
 
