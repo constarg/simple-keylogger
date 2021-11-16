@@ -54,7 +54,6 @@ static struct kb_dec_key kb_dec_keys[KEY_NUMBERS] = {
         {.kb_key_code = KEY_LEFTSHIFT,  .kb_key_name = "SHIFT"    },
         {.kb_key_code = KEY_COMMA,      .kb_key_name = ","        },
         {.kb_key_code = KEY_DOT,        .kb_key_name = "."        },
-        {.kb_key_code = KEY_SLASH,      .kb_key_name = "_"        },
         {.kb_key_code = KEY_RIGHTSHIFT, .kb_key_name = "SHIFT"    },
         {.kb_key_code = KEY_SPACE,      .kb_key_name = "SPACE"    },
         {.kb_key_code = KEY_CAPSLOCK,   .kb_key_name = "CAPTSLOCK"},
