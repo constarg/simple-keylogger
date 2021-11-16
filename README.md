@@ -26,3 +26,8 @@ https://cmake.org/download/
 `
 
 After this the program will be installed and ready to run.
+
+# Features
+- [x] `Auto detect keyboard`
+- [x] `Work with multiple keyboards.`
+- [x] `Detect any new keyboard on air.`
