@@ -10,15 +10,15 @@
 #include <kb_worker.h>
 #include <mem.h>
 
-#define DEVICE_LOCATION         "/proc/bus/input/devices"
-#define DEVICE_HANDLER_PATH     "/dev/input/"
-#define KEYBOARD_ID             "EV=120013"
+#define DEVICE_LOCATION             "/proc/bus/input/devices"
+#define DEVICE_HANDLER_PATH         "/dev/input/"
+#define KEYBOARD_ID                 "EV=120013"
 
-#define TRUE  1
-#define FALSE 0
+#define TRUE                        1
+#define FALSE                       0
 
-#define INITIAL_WORKER_MAKER_DELAY 5
-#define REDESCOVER_DELAY           3
+#define INITIAL_WORKER_MAKER_DELAY  5
+#define REDESCOVER_DELAY            3
 
 struct kb_worker **workers = NULL;
 static size_t workers_s = 0;
@@ -133,6 +133,16 @@ static inline int has_kb_worker(const struct kb_worker *worker) {
     return FALSE;
 }
 
+static inline void worker_killer() {
+    pthread_t curr_thread;
+
+    // Kill all the active threads.
+    for (int th = 0; th < workers_s; th++) {
+        curr_thread = *(workers[th]->kb_thread);
+        if (pthread_cancel(curr_thread) != 0) return;
+    }
+}
+
 static void discovery() {
     size_t discovered_kbs_s = 0;
     char **discovered_kbs = kb_discovery(&discovered_kbs_s);
@@ -160,7 +170,7 @@ static void discovery() {
     }
 
     free(discovered_kbs);
-    if (new_discovery) kill(0, SIGUSR1);
+    if (new_discovery) worker_killer();
 }
 
 _Noreturn static void *discovery_thread(void *arg) {
@@ -181,18 +191,8 @@ _Noreturn static void *worker_maker_thread(void *arg) {
     }
 }
 
-static void worker_killer(int sig) {
-    pthread_t curr_thread;
-
-    // Kill all the active threads.
-    for (int th = 0; th < workers_s; th++) {
-        curr_thread = *(workers[th]->kb_thread);
-        if (pthread_cancel(curr_thread) != 0) return;
-    }
-}
-
 static inline void initialize_signal() {
-    signal(SIGUSR1, worker_killer);
+    // TODO - Make a few signals.
 }
 
 void map_keyboards() {
