@@ -32,3 +32,6 @@ After this the program will be installed and ready to run.
 - [x] Auto detect keyboard.
 - [x] Work with multiple keyboards.
 - [x] Detect any new keyboard on air.
+
+# Log loction
+Captured keystrokes stored at ~/.local/share/keylogger/logs/
