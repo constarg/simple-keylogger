@@ -8,8 +8,11 @@
 #include <kb_mapper.h>
 #include <kb_decoder.h>
 #include <logs/logger.h>
+#include <mem.h>
 
-#define TRUE 1
+#ifndef TRUE
+#define TRUE            1
+#endif
 
 #define DONT_RESET      0
 #define RESET           1
@@ -48,15 +51,17 @@ _Noreturn void *start_worker(void *worker) {
     struct kb_worker *worker_infos = (struct kb_worker *) worker;
     struct input_event device_event; // Current keyboard device event.
     struct kb_dec_key *decoded;
-    char device_event_path[strlen(worker_infos->kb_event_file) - 1];
+    char *device_event_path;
+    ALLOC_MEM(device_event_path, strlen(worker_infos->kb_event_file), sizeof(char));
     // Remove an empty extra character that came from the parse.
-    make_terminal_log(START_CAPTURE, worker_infos->kb_id);
     pthread_cleanup_push(killed_worker, (void *) &cleanup_infos);
     strncpy(device_event_path, worker_infos->kb_event_file, strlen(worker_infos->kb_event_file) - 1);
 
     int device_fd = open(device_event_path, O_RDONLY);
+    free(device_event_path);
     if (device_fd == -1) {
         make_terminal_log(FAILED_TO_OPEN, worker_infos->kb_id);
+        cleanup_infos.kb_worker = worker_infos;
         cleanup_infos.device_file_fd = -1;
         cleanup_infos.reset = DONT_RESET;
         pthread_exit(0);
@@ -67,6 +72,7 @@ _Noreturn void *start_worker(void *worker) {
     cleanup_infos.reset = RESET;
 
     worker_infos->kb_status = KB_WORKER_RUNNING;
+    make_terminal_log(START_CAPTURE, worker_infos->kb_id);
     while (TRUE) {
         if (read(device_fd, &device_event, sizeof(device_event)) == -1) {
             make_terminal_log(FAILED_TO_READ, worker_infos->kb_id);
