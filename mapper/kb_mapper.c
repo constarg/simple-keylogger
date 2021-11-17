@@ -9,6 +9,7 @@
 #include <kb_mapper.h>
 #include <kb_worker.h>
 #include <mem.h>
+#include <logs/logger.h>
 
 #define DEVICE_LOCATION             "/proc/bus/input/devices"
 #define DEVICE_HANDLER_PATH         "/dev/input/"
@@ -164,6 +165,7 @@ static void discovery() {
             append_to_workers(new_worker);
             new_discovery = TRUE;
         } else {
+            --latest_worker_id;
             free(new_worker->kb_event_file);
             free(new_worker);
             free(worker_thread);
@@ -171,11 +173,14 @@ static void discovery() {
     }
 
     free(discovered_kbs);
-    if (new_discovery) worker_killer();
+    if (new_discovery) {
+        make_terminal_log("New keyboard has been discovered", 0);
+        worker_killer();
+    }
 }
 
 _Noreturn static void *discovery_thread(void *arg) {
-    while ( TRUE ) {
+    while (TRUE) {
         discovery();
         sleep(REDESCOVER_DELAY);
     }

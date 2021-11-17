@@ -50,7 +50,7 @@ static struct kb_dec_key kb_dec_keys[KEY_NUMBERS] = {
         {.kb_key_code = KEY_Y,          .kb_key_name = "Y"        },
         {.kb_key_code = KEY_Z,          .kb_key_name = "Z"        },
         {.kb_key_code = KEY_ENTER,      .kb_key_name = "ENTER"    },
-        {.kb_key_code = KEY_LEFTCTRL,   .kb_key_name = "LEFT_CTRL"},
+        {.kb_key_code = KEY_LEFTCTRL,   .kb_key_name = "CTRL"     },
         {.kb_key_code = KEY_LEFTSHIFT,  .kb_key_name = "SHIFT"    },
         {.kb_key_code = KEY_COMMA,      .kb_key_name = ","        },
         {.kb_key_code = KEY_DOT,        .kb_key_name = "."        },
@@ -58,7 +58,7 @@ static struct kb_dec_key kb_dec_keys[KEY_NUMBERS] = {
         {.kb_key_code = KEY_SPACE,      .kb_key_name = "SPACE"    },
         {.kb_key_code = KEY_CAPSLOCK,   .kb_key_name = "CAPTSLOCK"},
         {.kb_key_code = KEY_ALT,        .kb_key_name = "ALT"      },
-        {.kb_key_code = KEY_WIN,        .kb_key_name = "WIN_KEY"  }
+        {.kb_key_code = KEY_WIN,        .kb_key_name = "SUPER"    }
 };
 
 
