@@ -182,21 +182,22 @@ static void discovery() {
 }
 
 _Noreturn static void *discovery_thread(void *arg) {
-    while (TRUE) {
+    //while (TRUE) {
         discovery();
         sleep(REDESCOVER_DELAY);
-    }
+    //}
 }
 
 _Noreturn static void *worker_maker_thread(void *arg) {
     // Wait for 5 seconds to make the first discovery.
     // Yes 5 seconds is too much but for this function to work it must be sure that the discovery has been made.
     sleep(INITIAL_WORKER_MAKER_DELAY);
-    while ( TRUE ) {
+    while (TRUE) {
         for (int wr = 0; wr < workers_s; wr++) pthread_create(workers[wr]->kb_thread, NULL, start_worker, (void *) workers[wr]);
         // Wait for all the threads to end.
         for (int wr = 0; wr < workers_s; wr++) pthread_join(*workers[wr]->kb_thread, NULL);
         if (workers_s == 0) sleep(2);
+        break;
     }
 }
 
