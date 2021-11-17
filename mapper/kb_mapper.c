@@ -182,10 +182,10 @@ static void discovery() {
 }
 
 _Noreturn static void *discovery_thread(void *arg) {
-    //while (TRUE) {
+    while (TRUE) {
         discovery();
         sleep(REDESCOVER_DELAY);
-    //}
+    }
 }
 
 _Noreturn static void *worker_maker_thread(void *arg) {
