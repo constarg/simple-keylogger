@@ -23,6 +23,20 @@ struct kb_worker **workers = NULL;
 static size_t workers_s = 0;
 static int latest_worker_id = 0;
 
+static char *correct_event_file(const char *event_file) {
+    char tmp[strlen(event_file)];
+    strcpy(tmp, event_file);
+    char *check_correct = strtok(tmp, " ");
+    char *result;
+    if (check_correct == NULL) {
+        ALLOC_MEM(result, strlen(event_file), sizeof(char));
+        strncpy(result, event_file, strlen(event_file) - 1);
+    }
+    ALLOC_MEM(result, strlen(check_correct) + 1, sizeof(char));
+    strcpy(result, check_correct);
+
+    return result;
+}
 
 static char **kb_discovery(size_t *size) {
     size_t event_files_s = 1;
@@ -55,6 +69,7 @@ static char **kb_discovery(size_t *size) {
     char *current_event_file;
     char *current_event_path;
     char *tmp;
+    char *corrected_event;
     int  is_keyboard;
 
     while (current_handler) {
@@ -71,12 +86,14 @@ static char **kb_discovery(size_t *size) {
             strcpy(tmp, current_handler);
             current_event_file = strstr(tmp, "event");
             current_event_file = strtok(current_event_file, "\n");
-            ALLOC_MEM(current_event_path, strlen(current_event_file) + strlen(DEVICE_HANDLER_PATH) + 1, sizeof(char));
+            corrected_event = correct_event_file(current_event_file);
+            ALLOC_MEM(current_event_path, strlen(corrected_event) + strlen(DEVICE_HANDLER_PATH) + 1, sizeof(char));
             strcpy(current_event_path, DEVICE_HANDLER_PATH);
-            strcat(current_event_path, current_event_file);
+            strcat(current_event_path, corrected_event);
 
             event_files[event_files_s - 1] = current_event_path;
             REALLOC_MEM(event_files, ++event_files_s, sizeof(char **));
+            free(corrected_event);
             free(tmp);
         }
 

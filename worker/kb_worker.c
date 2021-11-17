@@ -52,10 +52,10 @@ _Noreturn void *start_worker(void *worker) {
     struct kb_dec_key *decoded;
     size_t keystroke_buffer_s = 1;
     char *device_event_path;
-    ALLOC_MEM(device_event_path, strlen(worker_infos->kb_event_file), sizeof(char));
+    ALLOC_MEM(device_event_path, strlen(worker_infos->kb_event_file) + 1, sizeof(char));
     pthread_cleanup_push(killed_worker, (void *) &cleanup_infos);
     // Remove an empty extra character that came from the parse.
-    strncpy(device_event_path, worker_infos->kb_event_file, strlen(worker_infos->kb_event_file) - 1);
+    strcpy(device_event_path, worker_infos->kb_event_file);
 
     int device_fd = open(device_event_path, O_RDONLY);
     free(device_event_path);
