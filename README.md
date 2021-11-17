@@ -1,6 +1,6 @@
 [![linux-keylogger Build](https://github.com/rounnus/linux-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/rounnus/linux-keylogger/actions/workflows/cmake.yml)
 # Introduction
-This keylogger is a project that was made for educational purposes and does not send any key to the internet. What it does is take the keys and store them in a local file. I wanted to make such a keylogger for a long time to learn how a program could take keystrokes and use them either for good or for bad.
+This keylogger is a project that was made for educational purposes and does not send any keystroke to the internet. What it does is take the keystrokes and store them in a local file. I wanted to make such a keylogger for a long time to learn how a program could take keystrokes and use them either for good or for bad.
 
 # Download & Build
 
