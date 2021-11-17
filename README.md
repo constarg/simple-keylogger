@@ -34,4 +34,4 @@ After this the program will be installed and ready to run.
 - [x] Detect any new keyboard on air.
 
 # Log loction
-Captured keystrokes stored at ~/.local/share/keylogger/logs/
+Captured keystrokes stored at `~/.local/share/keylogger/logs/`
