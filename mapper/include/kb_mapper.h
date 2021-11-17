@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <pthread.h>
 
-typedef int8_t status;
-
 extern void map_keyboards();
 
 #endif

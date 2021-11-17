@@ -3,7 +3,7 @@ This keylogger is a project that was made for educational purposes and does not 
 
 # Download & Build
 
-First download the program from GitHub and go to the File-Sorter-Core folder.
+First download the program from GitHub and go to the linux-keylogger folder.
 
 ```
 % git clone https://github.com/rounnus/linux-keylogger.git
