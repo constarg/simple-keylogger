@@ -29,8 +29,6 @@ struct kb_worker_cleanup_infos {
     int    reset;
 };
 
-static pthread_mutex_t lock;
-
 static void killed_worker(void *arg) {
     // Cleanup handler.
     struct kb_worker_cleanup_infos *cleanup_infos = (struct kb_worker_cleanup_infos *) arg;
