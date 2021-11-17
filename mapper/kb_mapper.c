@@ -9,14 +9,12 @@
 #include <kb_mapper.h>
 #include <kb_worker.h>
 #include <mem.h>
+#include <constants/constants.h>
 #include <logs/logger.h>
 
 #define DEVICE_LOCATION             "/proc/bus/input/devices"
 #define DEVICE_HANDLER_PATH         "/dev/input/"
 #define KEYBOARD_ID                 "EV=120013"
-
-#define TRUE                        1
-#define FALSE                       0
 
 #define INITIAL_WORKER_MAKER_DELAY  5
 #define REDESCOVER_DELAY            3
@@ -159,7 +157,7 @@ static void discovery() {
         ALLOC_MEM(new_worker, 1, sizeof(struct kb_worker));
         ALLOC_MEM(worker_thread, 1, sizeof(pthread_t));
         new_worker->kb_id = ++latest_worker_id;
-        new_worker->kb_status = KB_WORKER_UNKNOWN;
+        new_worker->kb_status = KB_WORKER_INITIAL;
         new_worker->kb_thread = worker_thread;
         new_worker->kb_event_file = discovered_kbs[kb];
 
@@ -197,7 +195,6 @@ _Noreturn static void *worker_maker_thread(void *arg) {
         // Wait for all the threads to end.
         for (int wr = 0; wr < workers_s; wr++) pthread_join(*workers[wr]->kb_thread, NULL);
         if (workers_s == 0) sleep(2);
-        break;
     }
 }
 

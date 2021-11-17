@@ -7,7 +7,7 @@
 typedef u_int8_t status;
 
 #define KB_WORKER_RESET   3
-#define KB_WORKER_UNKNOWN 2
+#define KB_WORKER_INITIAL 2
 #define KB_WORKER_RUNNING 1
 #define KB_WORKER_FAILED  0
 
