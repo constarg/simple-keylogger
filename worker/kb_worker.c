@@ -55,7 +55,6 @@ _Noreturn void *start_worker(void *worker) {
     ALLOC_MEM(device_event_path, strlen(worker_infos->kb_event_file) + 1, sizeof(char));
     pthread_cleanup_push(killed_worker, (void *) &cleanup_infos);
     // Remove an empty extra character that came from the parse.
-    //strncpy(device_event_path, worker_infos->kb_event_file, strlen(worker_infos->kb_event_file) - 1);
     strcpy(device_event_path, worker_infos->kb_event_file);
 
     int device_fd = open(device_event_path, O_RDONLY);
