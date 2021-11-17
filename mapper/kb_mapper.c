@@ -148,6 +148,8 @@ static inline int has_kb_worker(const struct kb_worker *worker) {
 static void discovery() {
     size_t discovered_kbs_s = 0;
     char **discovered_kbs = kb_discovery(&discovered_kbs_s);
+    if (discovered_kbs == NULL) return;
+
     int new_discovery = FALSE;
     // Make a new worker.
     struct kb_worker *new_worker;
@@ -194,6 +196,7 @@ _Noreturn static void *worker_maker_thread(void *arg) {
         for (int wr = 0; wr < workers_s; wr++) pthread_create(workers[wr]->kb_thread, NULL, start_worker, (void *) workers[wr]);
         // Wait for all the threads to end.
         for (int wr = 0; wr < workers_s; wr++) pthread_join(*workers[wr]->kb_thread, NULL);
+        if (workers_s == 0) sleep(2);
     }
 }
 
