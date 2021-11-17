@@ -1,6 +1,4 @@
 /* file_handler.c */
+#include <file/file_handler.h>
 
 
-int append_to_file(const char *file, const char *what_to_append) {
-    return 0;
-}
