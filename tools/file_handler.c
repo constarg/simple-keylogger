@@ -25,9 +25,15 @@ static inline int is_file_exists(const char *path)
     return FALSE;
 }
 
+/**
+ * Create the path for a log file for a keyboard.
+ * @param kb_id The keyboard that have the log file.
+ * @return a pointer to the path or NULL on error.
+ */
 static inline char *get_kb_log_file(int kb_id)
 {
-    if (kb_id == 0) NULL;
+    if (kb_id == 0) return NULL;
+
     char *basic_file_name = "keyboard-";
     char *username = getlogin();
     char *home_dir = "/home/";
