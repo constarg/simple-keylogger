@@ -6,11 +6,13 @@
 
 typedef u_int8_t status;
 
+// Worker states.
 #define KB_WORKER_RESET   3
 #define KB_WORKER_INITIAL 2
 #define KB_WORKER_RUNNING 1
 #define KB_WORKER_FAILED  0
 
+// Worker.
 struct kb_worker {
     pthread_t *kb_thread;             // The associated thread for the keyboard.
     char      *kb_event_file;         // The event file of the keyboard.
@@ -19,8 +21,7 @@ struct kb_worker {
 };
 
 
-_Noreturn extern void *start_worker(void *worker);
-
+extern void *start_worker(void *worker) __attribute__((noreturn));
 
 
 #endif

