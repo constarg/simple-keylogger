@@ -62,7 +62,8 @@ static struct kb_dec_key kb_dec_keys[KEY_NUMBERS] = {
 };
 
 
-struct kb_dec_key *decode(int key_code) {
+struct kb_dec_key *decode(int key_code)
+{
     for (int key = 0; key < KEY_NUMBERS; key++) if (kb_dec_keys[key].kb_key_code == key_code) return &kb_dec_keys[key];
     return NULL;
 }
