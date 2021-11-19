@@ -119,14 +119,9 @@ static inline void initialize_workers()
 
 static inline void worker_killer()
 {
-    pthread_t curr_thread;
-
     // Kill all the active threads.
     for (int th = 0; th < workers_s; th++)
-    {
-        curr_thread = *(workers[th]->kb_thread);
-        if (pthread_cancel(curr_thread) != 0) return;
-    }
+        if (pthread_cancel(*(workers[th]->kb_thread)) != 0) return;
 }
 
 /**
@@ -170,7 +165,8 @@ static inline void remove_from_workers(int index)
 static inline int has_kb_worker(const char *event_file)
 {
 
-    for (int wr = 0; wr < workers_s; wr++) {
+    for (int wr = 0; wr < workers_s; wr++)
+    {
         if (workers == NULL) return FALSE;
 
         if (!strcmp(workers[wr]->kb_event_file, event_file) &&

