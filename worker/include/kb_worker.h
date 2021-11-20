@@ -20,7 +20,15 @@ struct kb_worker {
     status     kb_status: 2;          // The status of the keyboard worker.
 };
 
-
+/**
+ * This function is the one that runs inside the kb_thread and
+ * executes the work that a worker must do. The work that must be
+ * complete from the worker is that, until the user unplug the keyboard
+ * from the computer it must capture every keystroke the user
+ * type.
+ * @param worker The worker and the information following with him.
+ * @return  Nothing.
+ */
 extern void *start_worker(void *worker) __attribute__((noreturn));
 
 
