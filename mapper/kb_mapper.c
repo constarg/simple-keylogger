@@ -25,23 +25,6 @@ struct kb_worker **workers = NULL;
 static size_t workers_s = 0;
 static int latest_worker_id = 0;
 
-static char *correct_event_file(const char *event_file)
-{
-    char tmp[strlen(event_file)];
-    strcpy(tmp, event_file);
-    char *check_correct = strtok(tmp, " ");
-    char *result;
-    if (check_correct == NULL)
-    {
-        ALLOC_MEM(result, strlen(event_file), sizeof(char))
-        strncpy(result, event_file, strlen(event_file) - 1);
-    }
-    ALLOC_MEM(result, strlen(check_correct) + 1, sizeof(char))
-    strcpy(result, check_correct);
-
-    return result;
-}
-
 /**
  * Read the contents of /proc/bus/input/devices and
  * @return The contents of /proc/bus/input/devices.
@@ -70,47 +53,12 @@ static unsigned char *get_devices_file_content()
     return buffer;
 }
 
-static char **split_string(char *string, const char *delim)
+static inline unsigned int get_event_ends_offset(const char *event_location)
 {
-    static char *split_string[2];
-    // Check if there is any previous allocation.
-    // Initialize split_string.
-    memset(split_string, 0, 2);
+    unsigned int offset = 0;
+    while (event_location[offset] != ' ' && event_location[offset] != '\n') offset++;
 
-    // Check if the delim actually exists in string.
-    if (strstr(string, delim) == NULL) return NULL;
-
-    size_t delim_s = 0;
-    size_t string_tmp_s = 0;
-    while (string[delim_s])
-    {
-        if (string[delim_s] == delim[0]) break;
-        ++delim_s;
-    }
-    // Calculate what remains to one part.
-    size_t initial_string_s = strlen(string);
-    if (initial_string_s > delim_s)
-        string_tmp_s = initial_string_s - delim_s;
-    else
-        string_tmp_s = delim_s - initial_string_s;
-
-    char *part_1;
-    char *part_2;
-
-    ALLOC_MEM(part_1, delim_s + 1, sizeof(char));
-    ALLOC_MEM(part_2, string_tmp_s + 1, sizeof(char));
-    memcpy(part_1, string, delim_s);
-    memcpy(part_2, (string + delim_s + 1), string_tmp_s);
-
-    split_string[0] = part_1;
-    split_string[1] = part_2;
-
-    return split_string;
-}
-
-static inline void split_string_free_mem(char **split) {
-    FREE_MEM(split[0]);
-    FREE_MEM(split[1]);
+    return offset;
 }
 
 /**
@@ -126,37 +74,39 @@ static char **retrieve_events(const unsigned char *device_file)
     // Initialize the array.
     memset(retrieved_events, 0, MAXIMUM_EVENT_RETRIEVE);
 
-    // Make a copy of the device_file.
+    // Make two copies of the device_file.
     char tmp[strlen((const char *) device_file)];
     strcpy(tmp, (const char *) device_file);
 
     char *curr_handler = strstr(tmp, "Handlers");
-    char *curr_ev, *curr_event, **split;
+    char *curr_ev;
+    char *curr_event;
+
+    char *curr_state = strstr((const char *) device_file, "Handlers");
+    unsigned int curr_offset = 0;
 
     int i = 0;
     while (curr_handler)
     {
-        curr_ev = strstr(curr_handler, "EV");
-        split = split_string(curr_ev, "=");
+        curr_ev = strstr(curr_handler, "EV=");
+        curr_ev = strtok(curr_ev, "\n");
         if (curr_ev == NULL) return NULL;
 
-        if (!strcmp(curr_ev, "120013"))
+        curr_state = strstr(curr_state, "event");
+        if (!strcmp( (curr_ev + 3), "120013"))
         {
-            curr_event = strstr(curr_handler, "event");
-            split = split_string(curr_event, " ");
-            curr_event = split[0];
-            if (curr_event == NULL)
-            {
-                split_string_free_mem(split);
-                curr_event = strstr(curr_handler, "event");
-                curr_event = strtok(curr_event, "\n");
-                if (curr_event == NULL) return NULL;
-            }
-            printf("%s\n", curr_event);
+            if (i > MAXIMUM_EVENT_RETRIEVE - 1) break;
+            curr_offset = get_event_ends_offset(curr_state);
+            // Allocate space for the new discovered event.
+            ALLOC_MEM(curr_event, strlen("event") + curr_offset,
+                      sizeof(char))
+
+            memcpy(curr_event, curr_state, curr_offset);
             retrieved_events[i++] = curr_event;
-            split_string_free_mem(split);
         }
-        curr_handler = strstr(curr_event, "Handlers");
+        curr_handler = strtok(NULL, "");
+        curr_handler = strstr(curr_handler, "Handlers");
+        curr_state = strstr(curr_state, "Handlers");
     }
 
     return retrieved_events;
@@ -178,8 +128,23 @@ static char **kb_discovery()
     // retrieve the events.
     char **retrieved_events = retrieve_events(device_file);
     // Build up the paths.
-    //printf("%s\n", retrieved_events[0]);
 
+    int curr_event = 0;
+    while (retrieved_events[curr_event])
+    {
+        if (curr_event > MAXIMUM_EVENT_RETRIEVE - 1) break;
+
+        ALLOC_MEM(event_paths[curr_event],
+                  strlen(retrieved_events[curr_event]) + strlen(DEVICE_HANDLER_PATH) + 1,
+                  sizeof(char));
+
+        strcpy(event_paths[curr_event], DEVICE_HANDLER_PATH);
+        strcat(event_paths[curr_event], retrieved_events[curr_event]);
+        FREE_MEM(retrieved_events[curr_event]);
+        ++curr_event;
+    }
+
+    return event_paths;
 }
 
 static inline void initialize_workers()
@@ -280,20 +245,18 @@ static inline void reset_workers()
 
 static void discovery()
 {
-    size_t discovered_kbs_s = 0;
-    char **discovered_kbs = kb_discovery(&discovered_kbs_s);
+    char **discovered_kbs = kb_discovery();
     if (discovered_kbs == NULL) return;
 
     int prev_latest_worker_id = latest_worker_id;
 
-    for (int kb = 0; kb < discovered_kbs_s; kb++)
+    for (int kb = 0; discovered_kbs[kb]; kb++)
     {
         // If there is an actual new keyboard then produce worker and append the new worker in the workers.
         if (!has_kb_worker(discovered_kbs[kb])) append_to_workers(produce_worker(discovered_kbs[kb]));
         else abort_discovery(discovered_kbs[kb]);
     }
 
-    FREE_MEM(discovered_kbs)
     if (latest_worker_id > prev_latest_worker_id)
     {
         int new_discoveries = latest_worker_id - prev_latest_worker_id;
@@ -342,7 +305,7 @@ static inline void initialize_signal()
 
 void map_keyboards()
 {
-   /* initialize_signal();
+    initialize_signal();
     initialize_workers();
     // Make the two main threads.
     pthread_t discovery_t;
@@ -354,6 +317,5 @@ void map_keyboards()
     pthread_join(discovery_t, NULL);
     pthread_join(worker_maker_t, NULL);
 
-    destroy_workers();*/
-    kb_discovery();
+    destroy_workers();
 }
