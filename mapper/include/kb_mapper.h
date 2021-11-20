@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <pthread.h>
 
+/**
+ * Discover the system keyboards and creates
+ * the workers to handle those keyboards.
+ */
 extern void map_keyboards();
 
 #endif

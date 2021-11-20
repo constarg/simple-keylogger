@@ -14,102 +14,137 @@
 
 #define DEVICE_LOCATION             "/proc/bus/input/devices"
 #define DEVICE_HANDLER_PATH         "/dev/input/"
-#define KEYBOARD_ID                 "EV=120013"
 
 #define INITIAL_WORKER_MAKER_DELAY  5
 #define REDESCOVER_DELAY            3
+
+#define MAXIMUM_BUFFER_SIZE         50000
+#define MAXIMUM_EVENT_RETRIEVE      30
 
 struct kb_worker **workers = NULL;
 static size_t workers_s = 0;
 static int latest_worker_id = 0;
 
-static char *correct_event_file(const char *event_file)
+/**
+ * Read the contents of /proc/bus/input/devices and
+ * @return The contents of /proc/bus/input/devices.
+ */
+static unsigned char *get_devices_file_content()
 {
-    char tmp[strlen(event_file)];
-    strcpy(tmp, event_file);
-    char *check_correct = strtok(tmp, " ");
-    char *result;
-    if (check_correct == NULL)
-    {
-        ALLOC_MEM(result, strlen(event_file), sizeof(char))
-        strncpy(result, event_file, strlen(event_file) - 1);
-    }
-    ALLOC_MEM(result, strlen(check_correct) + 1, sizeof(char))
-    strcpy(result, check_correct);
+    static unsigned char buffer[MAXIMUM_BUFFER_SIZE];
+    // Initialize buffer with zeros.
+    memset(buffer,0, MAXIMUM_BUFFER_SIZE);
 
-    return result;
-}
+    int device_fd = open(DEVICE_LOCATION, O_RDONLY);
+    if (device_fd == -1) return NULL;
 
-static char **kb_discovery(size_t *size)
-{
-    size_t event_files_s = 1;
-    char **event_files;
-    ALLOC_MEM(event_files, event_files_s, sizeof(char **))
-
-    // Open the file that has all the devices.
-    int devices_fd = open(DEVICE_LOCATION, O_RDONLY);
-    if (devices_fd == -1) return NULL;
-
-    ssize_t devices_s = 1;
-    char *devices;
-    char *buffer;
-    ALLOC_MEM(devices, 2,sizeof(char))
-    ALLOC_MEM(buffer, 2, sizeof(char))
-
+    char ch;
     ssize_t bytes = 1;
+    int i = 0;
+    // Read the contents of the device file.
     while (bytes)
     {
-        bytes = read(devices_fd, buffer, 1);
-        if (bytes == -1) break;
-        strcat(devices, buffer);
-        devices_s += bytes;
-        REALLOC_MEM(devices, devices_s + 1, sizeof(char))
+        bytes = read(device_fd, &ch, sizeof(ch));
+        if (bytes == -1) return NULL;
+        buffer[i++] = ch;
     }
-    FREE_MEM(buffer)
 
-    char *current_handler = strstr(devices, "Handlers");
-    char *current_ev;
-    char *current_kb_id;
-    char *current_event_file;
-    char *current_event_path;
-    char *tmp;
-    char *corrected_event;
-    int  is_keyboard;
+    close(device_fd);
+    return buffer;
+}
 
-    while (current_handler)
+static inline unsigned int get_event_ends_offset(const char *event_location)
+{
+    unsigned int offset = 0;
+    while (event_location[offset] != ' ' && event_location[offset] != '\n') offset++;
+
+    return offset;
+}
+
+/**
+ * Find the event file each keyboard.
+ * @param device_file The device file that contain the events.
+ * @return  On success returns a null-terminated array that contains
+ * the names of each event that corespondent to a keyboard. On error
+ * NULL returned.
+ */
+static char **retrieve_events(const unsigned char *device_file)
+{
+    static char *retrieved_events[MAXIMUM_EVENT_RETRIEVE];
+    // Initialize the array.
+    memset(retrieved_events, 0, MAXIMUM_EVENT_RETRIEVE);
+
+    // Make two copies of the device_file.
+    char tmp[strlen((const char *) device_file)];
+    strcpy(tmp, (const char *) device_file);
+
+    char *curr_handler = strstr(tmp, "Handlers");
+    char *curr_ev;
+    char *curr_event;
+
+    char *curr_state = strstr((const char *) device_file, "Handlers");
+    unsigned int curr_offset = 0;
+
+    int i = 0;
+    while (curr_handler)
     {
-        current_ev = strstr(current_handler, "EV=");
+        curr_ev = strstr(curr_handler, "EV=");
+        curr_ev = strtok(curr_ev, "\n");
+        if (curr_ev == NULL) return NULL;
 
-        ALLOC_MEM(tmp, strlen(current_ev) + 1, sizeof(char))
-        strcpy(tmp, current_ev);
-        current_kb_id = strtok(tmp, "\n");
-        is_keyboard = !strcmp(current_kb_id, KEYBOARD_ID);
-        FREE_MEM(tmp)
-
-        if (is_keyboard)
+        curr_state = strstr(curr_state, "event");
+        if (!strcmp( (curr_ev + 3), "120013"))
         {
-            ALLOC_MEM(tmp, strlen(current_handler) + 1, sizeof(char))
-            strcpy(tmp, current_handler);
-            current_event_file = strstr(tmp, "event");
-            current_event_file = strtok(current_event_file, "\n");
-            corrected_event = correct_event_file(current_event_file);
-            ALLOC_MEM(current_event_path, strlen(corrected_event) + strlen(DEVICE_HANDLER_PATH) + 1, sizeof(char))
-            strcpy(current_event_path, DEVICE_HANDLER_PATH);
-            strcat(current_event_path, corrected_event);
+            if (i > MAXIMUM_EVENT_RETRIEVE - 1) break;
+            curr_offset = get_event_ends_offset(curr_state);
+            // Allocate space for the new discovered event.
+            ALLOC_MEM(curr_event, strlen("event") + curr_offset,
+                      sizeof(char))
 
-            event_files[event_files_s - 1] = current_event_path;
-            REALLOC_MEM(event_files, ++event_files_s, sizeof(char **))
-            FREE_MEM(corrected_event)
-            FREE_MEM(tmp)
+            memcpy(curr_event, curr_state, curr_offset);
+            retrieved_events[i++] = curr_event;
         }
-
-        current_handler = strstr(current_ev, "Handlers");
+        curr_handler = strtok(NULL, "");
+        curr_handler = strstr(curr_handler, "Handlers");
+        curr_state = strstr(curr_state, "Handlers");
     }
 
-    close(devices_fd);
-    *size = event_files_s - 1;
-    FREE_MEM(devices)
-    return event_files;
+    return retrieved_events;
+}
+
+/**
+ * Discover new keyboard devices.
+ * @return On success returns a null-terminated array that contains
+ * the path to the event file for each keyboard on the system. On error NULL
+ * returned.
+ */
+static char **kb_discovery()
+{
+    unsigned char *device_file = get_devices_file_content();
+    static char *event_paths[MAXIMUM_EVENT_RETRIEVE];
+    // Initialize event files.
+    memset(event_paths, 0, MAXIMUM_EVENT_RETRIEVE);
+
+    // retrieve the events.
+    char **retrieved_events = retrieve_events(device_file);
+    // Build up the paths.
+
+    int curr_event = 0;
+    while (retrieved_events[curr_event])
+    {
+        if (curr_event > MAXIMUM_EVENT_RETRIEVE - 1) break;
+
+        ALLOC_MEM(event_paths[curr_event],
+                  strlen(retrieved_events[curr_event]) + strlen(DEVICE_HANDLER_PATH) + 1,
+                  sizeof(char));
+
+        strcpy(event_paths[curr_event], DEVICE_HANDLER_PATH);
+        strcat(event_paths[curr_event], retrieved_events[curr_event]);
+        FREE_MEM(retrieved_events[curr_event]);
+        ++curr_event;
+    }
+
+    return event_paths;
 }
 
 static inline void initialize_workers()
@@ -189,6 +224,7 @@ static inline struct kb_worker *produce_worker(const char *event_file)
     ALLOC_MEM(worker_thread, 1, sizeof(pthread_t))
     ALLOC_MEM(new_worker, 1, sizeof(struct kb_worker))
     // Initialize worker.
+
     new_worker->kb_id = ++latest_worker_id;
     new_worker->kb_event_file = (char *) event_file;
     new_worker->kb_status = KB_WORKER_INITIAL;
@@ -209,20 +245,18 @@ static inline void reset_workers()
 
 static void discovery()
 {
-    size_t discovered_kbs_s = 0;
-    char **discovered_kbs = kb_discovery(&discovered_kbs_s);
+    char **discovered_kbs = kb_discovery();
     if (discovered_kbs == NULL) return;
 
     int prev_latest_worker_id = latest_worker_id;
 
-    for (int kb = 0; kb < discovered_kbs_s; kb++)
+    for (int kb = 0; discovered_kbs[kb]; kb++)
     {
         // If there is an actual new keyboard then produce worker and append the new worker in the workers.
         if (!has_kb_worker(discovered_kbs[kb])) append_to_workers(produce_worker(discovered_kbs[kb]));
         else abort_discovery(discovered_kbs[kb]);
     }
 
-    FREE_MEM(discovered_kbs)
     if (latest_worker_id > prev_latest_worker_id)
     {
         int new_discoveries = latest_worker_id - prev_latest_worker_id;
