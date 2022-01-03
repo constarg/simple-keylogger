@@ -2,6 +2,12 @@
 # Introduction
 This keylogger is a project that was made for educational purposes and does not send any keystroke to the internet. What it does is take the keystrokes and store them in a local file. I wanted to make such a keylogger for a long time to learn how a program could take keystrokes and use them either for good or for bad.
 
+# Installation requirements
+The following packages must be installed.<br>
+```
+sudo apt-get install build-essential cmake git gcc
+```
+
 # Download & Build
 
 First download the program from GitHub and go to the linux-keylogger folder.
