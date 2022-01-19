@@ -2,7 +2,7 @@
 # Introduction
 This keylogger is a project that was made for educational purposes and does not send any keystroke to the internet. What it does is take the keystrokes and store them in a local file. I wanted to make such a keylogger for a long time to learn how a program could take keystrokes and use them either for good or for bad.<br>
 
-<img src="https://user-images.githubusercontent.com/38585824/150214020-ccb7c3d7-c197-46cd-b17b-30e9ee037002.gif" width="70%" height="50%">
+<img src="https://user-images.githubusercontent.com/38585824/150214487-0cd08cfc-3b26-4975-8669-233acf9ee59b.gif" width="70%" height="50%">
 
 # Installation requirements
 The following packages must be installed.<br>
