@@ -15,7 +15,7 @@ sudo apt-get install build-essential cmake git gcc
 First download the program from GitHub and go to the linux-keylogger folder.
 
 ```
-% git clone https://github.com/rounnus/linux-keylogger.git
+% git clone https://github.com/EmbeddedCat/linux-keylogger.git
 % cd linux-keylogger/
 ```
 
