@@ -18,7 +18,7 @@
 #define INITIAL_WORKER_MAKER_DELAY  5
 #define REDESCOVER_DELAY            3
 
-#define MAXIMUM_BUFFER_SIZE         50000
+#define MAXIMUM_BUFFER_SIZE         100000
 #define MAXIMUM_EVENT_RETRIEVE      30
 
 struct kb_worker **workers = NULL;
