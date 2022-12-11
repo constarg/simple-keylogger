@@ -93,7 +93,8 @@ static char **retrieve_events(const unsigned char *device_file)
         if (curr_ev == NULL) return NULL;
 
         curr_state = strstr(curr_state, "event");
-        if (!strcmp( (curr_ev + 3), "120013"))
+        if (!strcmp((curr_ev + 3), "120013") || 
+            !strcmp((curr_ev + 3), "12001f"))
         {
             if (i > MAXIMUM_EVENT_RETRIEVE - 1) break;
             curr_offset = get_event_ends_offset(curr_state);
@@ -260,9 +261,9 @@ static void discovery()
     if (latest_worker_id > prev_latest_worker_id)
     {
         int new_discoveries = latest_worker_id - prev_latest_worker_id;
-
-        if (new_discoveries == 1) make_terminal_log("New keyboard has been discovered", 0);
-        else make_terminal_log("New keyboards has been discovered", 0);
+        make_terminal_log("keyboard - 0, is not a real keyboard. Is something like a manager for the available keyboards.", 0);
+        make_terminal_log("New keyboard has been discovered...", 0);
+        make_terminal_log("Waiting for capturing to start...", 0);
 
         // Reset workers to start capturing the new discovered keyboards.
         reset_workers();
