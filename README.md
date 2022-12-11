@@ -14,7 +14,7 @@ Keystroke logging, often referred to as keylogging or keyboard capturing, is the
 
 While the programs themselves are legal, with many designed to allow employers to oversee the use of their computers, keyloggers are most often used for stealing passwords and other confidential information.
 
-Keylogging can also be used to study keystroke dynamics or human-computer interaction. Numerous keylogging methods exist, ranging from hardware and software-based approaches to acoustic cryptanalysis.<br> 
+Keylogging can also be used to study keystroke dynamics or human-computer interaction. Numerous keylogging methods exist, ranging from hardware and software-based approaches to acoustic cryptanalysis.<br><br>
 Source: `https://en.wikipedia.org/wiki/Keystroke_logging`
 
 # Disclaimer
