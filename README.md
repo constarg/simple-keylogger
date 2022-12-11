@@ -1,4 +1,4 @@
-# simple linux keylogger
+# simple keylogger
 
 [![linux-keylogger Build](https://github.com/EmbeddedCat/simple-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/EmbeddedCat/simple-keylogger/actions/workflows/cmake.yml)
 
