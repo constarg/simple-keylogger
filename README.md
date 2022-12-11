@@ -8,6 +8,15 @@
 [![Purpose](https://img.shields.io/badge/Purpose-Educational-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/releases/tag/v1.0)
 [![OS](https://img.shields.io/badge/OS-Linux-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger)
 
+# What is a keylogger?
+
+Keystroke logging, often referred to as keylogging or keyboard capturing, is the action of recording (logging) the keys struck on a keyboard, typically covertly, so that a person using the keyboard is unaware that their actions are being monitored. Data can then be retrieved by the person operating the logging program. A keystroke recorder or keylogger can be either software or hardware.
+
+While the programs themselves are legal,[3] with many designed to allow employers to oversee the use of their computers, keyloggers are most often used for stealing passwords and other confidential information.
+
+Keylogging can also be used to study keystroke dynamics or human-computer interaction. Numerous keylogging methods exist, ranging from hardware and software-based approaches to acoustic cryptanalysis.<br> 
+Source: `https://en.wikipedia.org/wiki/Keystroke_logging`
+
 # Disclaimer
 
 As a student who likes the field of security, I always wondered how one could programmatically implement such a tool. The tool is a simple, well commented project for anyone who is purely interested in the educational part only!! like me. Therefore, I bear no responsibility, in case someone, somehow, uses this tool, for any malicious purpose. I hope you like my project and found it interesting. Also this program does not send any of the keystrokes over a network, it only stores them in a local file.
