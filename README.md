@@ -3,6 +3,7 @@
 [![linux-keylogger Build](https://github.com/EmbeddedCat/linux-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/EmbeddedCat/linux-keylogger/actions/workflows/cmake.yml)
 
 [![GitHub license](https://img.shields.io/badge/Licence-MIT-brightgreen)](https://github.com/EmbeddedCat/simple-reverse-shell/blob/main/LICENSE)
+[![Release](https://img.shields.io/badge/Release-1.0-brightgreen)](https://github.com/EmbeddedCat/simple-reverse-shell/releases/tag/v1.0)
 
 
 # Disclaimer
