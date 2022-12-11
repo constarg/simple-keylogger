@@ -1,10 +1,12 @@
 # simple linux keylogger
 
-[![linux-keylogger Build](https://github.com/EmbeddedCat/linux-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/EmbeddedCat/linux-keylogger/actions/workflows/cmake.yml)
+[![linux-keylogger Build](https://github.com/EmbeddedCat/simple-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/EmbeddedCat/simple-keylogger/actions/workflows/cmake.yml)
 
-[![GitHub license](https://img.shields.io/badge/Licence-MIT-brightgreen)](https://github.com/EmbeddedCat/simple-reverse-shell/blob/main/LICENSE)
-[![Release](https://img.shields.io/badge/Release-1.0-brightgreen)](https://github.com/EmbeddedCat/simple-reverse-shell/releases/tag/v1.0)
 
+[![GitHub license](https://img.shields.io/badge/Licence-MIT-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/blob/main/LICENSE)
+[![Release](https://img.shields.io/badge/Release-1.0-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/releases/tag/v1.0)
+[![Purpose](https://img.shields.io/badge/Purpose-Educational-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/releases/tag/v1.0)
+[![OS](https://img.shields.io/badge/OS-Linux-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger)
 
 # Disclaimer
 
