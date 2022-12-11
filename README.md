@@ -10,7 +10,7 @@
 
 # Disclaimer
 
-As a student who likes the field of security, I always wondered how one could programmatically implement such a tool. The tool is a simple, well commented project for anyone who is purely interested in the educational part only!! like me. Therefore, I bear no responsibility, in case someone, somehow, uses this tool, for any malicious purpose. I hope you like my project and found it interesting, keep learning. Also this program does not send any of the keystrokes over a network, it only stores them in a local file.
+As a student who likes the field of security, I always wondered how one could programmatically implement such a tool. The tool is a simple, well commented project for anyone who is purely interested in the educational part only!! like me. Therefore, I bear no responsibility, in case someone, somehow, uses this tool, for any malicious purpose. I hope you like my project and found it interesting. Also this program does not send any of the keystrokes over a network, it only stores them in a local file.
 
 # GitHub Policy on active-malware-or-exploits
 
