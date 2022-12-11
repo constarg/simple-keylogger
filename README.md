@@ -27,11 +27,11 @@ sudo apt-get install build-essential cmake git gcc
 
 # Download & Build
 
-First download the program from GitHub and go to the linux-keylogger folder.
+First download the program from GitHub and go to the simple-keylogger folder.
 
 ```
-% git clone https://github.com/EmbeddedCat/linux-keylogger.git
-% cd linux-keylogger/
+% git clone https://github.com/EmbeddedCat/simple-keylogger.git
+% cd simple-keylogger/
 ```
 
 After installation the program must be built. In order to build the program, the following instructions must be
@@ -55,6 +55,9 @@ After this the program will be installed and ready to run.
 - [x] Auto detect keyboard.
 - [x] Work with multiple keyboards.
 - [x] Detect any new keyboard on air.
+
+# Compitible OS
+- [x] Linux
 
 # Log loction
 Captured keystrokes stored at `~/.local/share/keylogger/logs/`
