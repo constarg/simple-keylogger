@@ -1,12 +1,12 @@
 # simple keylogger
 
-[![linux-keylogger Build](https://github.com/EmbeddedCat/simple-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/EmbeddedCat/simple-keylogger/actions/workflows/cmake.yml)
+[![linux-keylogger Build](https://github.com/constarg/simple-keylogger/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/constarg/simple-keylogger/actions/workflows/cmake.yml)
 
 
-[![GitHub license](https://img.shields.io/badge/Licence-MIT-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/blob/main/LICENSE)
-[![Release](https://img.shields.io/badge/Release-1.0-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/releases/tag/v1.0)
-[![Purpose](https://img.shields.io/badge/Purpose-Educational-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger/releases/tag/v1.0)
-[![OS](https://img.shields.io/badge/OS-Linux-brightgreen)](https://github.com/EmbeddedCat/simple-keylogger)
+[![GitHub license](https://img.shields.io/badge/Licence-MIT-brightgreen)](https://github.com/constarg/simple-keylogger/blob/main/LICENSE)
+[![Release](https://img.shields.io/badge/Release-1.0-brightgreen)](https://github.com/constarg/simple-keylogger/releases/tag/v1.0)
+[![Purpose](https://img.shields.io/badge/Purpose-Educational-brightgreen)](https://github.com/constarg/simple-keylogger/releases/tag/v1.0)
+[![OS](https://img.shields.io/badge/OS-Linux-brightgreen)](https://github.com/constarg/simple-keylogger)
 
 # What is a keylogger?
 
@@ -41,7 +41,7 @@ sudo apt-get install build-essential cmake git gcc
 First download the program from GitHub and go to the simple-keylogger folder.
 
 ```
-% git clone https://github.com/EmbeddedCat/simple-keylogger.git
+% git clone https://github.com/constarg/simple-keylogger.git
 % cd simple-keylogger/
 ```
 
